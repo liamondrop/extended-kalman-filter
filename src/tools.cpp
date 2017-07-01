@@ -30,14 +30,14 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
 }
 
 VectorXd Tools::CartesianToPolar(const VectorXd &x) {
-    float px = x(0);
-    float py = x(1);
-    float vx = x(2);
-    float vy = x(3);
+    const float px = x(0);
+    const float py = x(1);
+    const float vx = x(2);
+    const float vy = x(3);
 
-    float rho = sqrt(px*px + py*py);
-    float phi = (px == 0) ? 0.0 : atan2(py, px);
-    float rho_dot = (rho == 0) ? 0.0 : (px*vx + py*vy) / rho;
+    const float rho = sqrt(px*px + py*py);
+    const float phi = (px == 0) ? 0.0 : atan2(py, px);
+    const float rho_dot = (rho == 0) ? 0.0 : (px*vx + py*vy) / rho;
 
     VectorXd out(3);
     out << rho, phi, rho_dot;
@@ -48,11 +48,11 @@ MatrixXd Tools::CalculateJacobian(const VectorXd &x) {
     MatrixXd Hj(3, 4);
 
     // recover state parameters
-    float px = x(0);
-    float py = x(1);
-    float vx = x(2);
-    float vy = x(3);
-    float norm_sq = px*px + py*py;
+    const float px = x(0);
+    const float py = x(1);
+    const float vx = x(2);
+    const float vy = x(3);
+    const float norm_sq = px*px + py*py;
 
     // check division by vanishingly small numbers
     if (std::abs(norm_sq) < 1e-5) {
@@ -60,18 +60,18 @@ MatrixXd Tools::CalculateJacobian(const VectorXd &x) {
         return Hj;
     }
 
-    float norm = sqrt(norm_sq);
-    float norm_sq15 = norm * norm_sq;
-    float vxpy = vx * py;
-    float vypx = vy * px;
+    const float norm = sqrt(norm_sq);
+    const float norm_sq15 = norm * norm_sq;
+    const float vxpy = vx * py;
+    const float vypx = vy * px;
 
     // compute the Jacobian matrix
-    float h00 = px/norm;
-    float h01 = py/norm;
-    float h10 = -py/norm_sq;
-    float h11 = px/norm_sq;
-    float h20 = py*(vxpy-vypx)/norm_sq15;
-    float h21 = px*(vypx-vxpy)/norm_sq15;
+    const float h00 = px/norm;
+    const float h01 = py/norm;
+    const float h10 = -py/norm_sq;
+    const float h11 = px/norm_sq;
+    const float h20 = py*(vxpy-vypx)/norm_sq15;
+    const float h21 = px*(vypx-vxpy)/norm_sq15;
 
     Hj << h00, h01, 0.0, 0.0,
           h10, h11, 0.0, 0.0,

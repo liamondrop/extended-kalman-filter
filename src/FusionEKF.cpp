@@ -1,5 +1,6 @@
-#include <iostream>
 #include "./FusionEKF.h"
+
+#include <iostream>
 
 /**
  * Constructor.
@@ -22,7 +23,7 @@ FusionEKF::FusionEKF() {
                 0, 0.0009, 0,
                 0,  0,  0.09;
 
-    // measurement matrix
+    // measurement matrix - laser
     H_laser_ = MatrixXd(2, 4);
     H_laser_ << 1, 0, 0, 0,
                 0, 1, 0, 0;
@@ -46,9 +47,9 @@ FusionEKF::~FusionEKF() {}
 VectorXd FusionEKF::getInitialX_(const MeasurementPackage &measurement_pack) {
     VectorXd initial_x(4);
     if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
-        float rho = measurement_pack.raw_measurements_[0];
-        float phi = measurement_pack.raw_measurements_[1];
-        float rho_dot = measurement_pack.raw_measurements_[2];
+        const float rho = measurement_pack.raw_measurements_[0];
+        const float phi = measurement_pack.raw_measurements_[1];
+        const float rho_dot = measurement_pack.raw_measurements_[2];
         initial_x << rho * sin(phi),
                      rho * cos(phi),
                      rho_dot * cos(phi),
@@ -63,9 +64,9 @@ VectorXd FusionEKF::getInitialX_(const MeasurementPackage &measurement_pack) {
 }
 
 MatrixXd FusionEKF::getQ_(const float &dt) {
-    float dt2 = (dt*dt < 1e-5) ? 0 : dt * dt;  // dt^2
-    float dt3 = (dt2 * dt) / 2.0;              // dt^3/2
-    float dt4 = (dt2 * dt2) / 4.0;             // dt^4/4
+    const float dt2 = (dt*dt < 1e-5) ? 0 : dt * dt;  // dt^2
+    const float dt3 = (dt2 * dt) / 2.0;              // dt^3/2
+    const float dt4 = (dt2 * dt2) / 4.0;             // dt^4/4
     MatrixXd Q = MatrixXd(4, 4);
     Q << dt4*noise_ax, 0.0, dt3*noise_ax, 0.0,
          0.0, dt4*noise_ay, 0.0, dt3*noise_ay,
@@ -76,13 +77,11 @@ MatrixXd FusionEKF::getQ_(const float &dt) {
 
 void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     // compute the time elapsed between measurements
-    float dt = (measurement_pack.timestamp_ - previous_timestamp_) / 1e+6;
+    const float dt = (measurement_pack.timestamp_ - previous_timestamp_) / 1e+6;
     previous_timestamp_ = measurement_pack.timestamp_;
 
-    // check if is initialized and delta_T is a sane value
+    // check if is initialized and the elapsed time is a sane value
     if (!is_initialized_ || dt <= 0 || dt > 100) {
-        std::cout << "INIT" << std::endl;
-        std::cout << "++++" << std::endl;
         VectorXd initial_x = getInitialX_(measurement_pack);
         ekf_.init(initial_x);
 

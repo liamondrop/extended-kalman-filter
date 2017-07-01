@@ -42,7 +42,7 @@ void KalmanFilter::update(const VectorXd &z, const MatrixXd &R) {
     // normalize the measured heading to between -pi and pi
     float phi = y(1);
     if (phi < -M_PI || phi > M_PI) {
-        float TWO_PI = 2 * M_PI;
+        const float TWO_PI = 2 * M_PI;
         y(1) -= TWO_PI * floor((phi + M_PI) / TWO_PI);
     }
 
